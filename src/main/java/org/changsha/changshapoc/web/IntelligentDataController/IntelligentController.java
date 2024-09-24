@@ -18,8 +18,11 @@ package org.changsha.changshapoc.web.IntelligentDataController;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.changsha.changshapoc.service.IntelligentDataService;
 import org.changsha.changshapoc.web.Common.ResponseResult;
+import org.changsha.changshapoc.web.Param.ExecSqlParam;
 import org.changsha.changshapoc.web.demo.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,21 +32,35 @@ import java.util.Arrays;
  * @author <a href="mailto:chenxilzx1@gmail.com">theonefx</a>
  */
 @Controller
-@RequestMapping("changsha/intelligentData")
+@RequestMapping("/changsha/intelligentData")
 @Slf4j
 public class IntelligentController {
+
+    @Autowired
+    IntelligentDataService intelligentDataService;
 
     @RequestMapping(value = "/execSqlMock", method = RequestMethod.GET)
     @ResponseBody
     public ResponseResult execSqlMock(@RequestParam(name = "query") String query) {
-
         String[] xarray = {"2024-01", "2024-02", "2024-03","2024-04", "2024-05"};
         Double[] yarray = {1525671.0, 1920391.0, 721637.0,84784839.0,1524351.0};
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("Xname", "日期");
-        jsonObject.put("Yname", "数量");
         jsonObject.put("X", xarray);
         jsonObject.put("Y", yarray);
+        return ResponseResult.success(jsonObject);
+    }
+
+    @RequestMapping(value = "/execSql", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseResult execSql(@RequestBody ExecSqlParam execSqlParam) {
+        JSONObject jsonObject = intelligentDataService.executeSql(execSqlParam.getSql(),execSqlParam.getSeqId());
+        return ResponseResult.success(jsonObject);
+    }
+
+    @RequestMapping(value = "/execSql", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult getRes(@RequestParam(name = "id") String id) {
+        JSONObject jsonObject = intelligentDataService.getRes(id);
         return ResponseResult.success(jsonObject);
     }
 }

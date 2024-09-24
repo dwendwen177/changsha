@@ -1,10 +1,10 @@
 package org.changsha.changshapoc.service;
 
-import java.util.List;
-import java.util.Map;
+import com.alibaba.fastjson.JSONObject;
 
 public interface IntelligentDataService {
 
-    public List<Map<String, Object>> executeSql(String sql);
+    public JSONObject executeSql(String sql,String seqId);
 
+    public JSONObject getRes(String seqId);
 }
