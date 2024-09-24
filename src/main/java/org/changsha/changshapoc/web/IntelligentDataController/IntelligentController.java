@@ -46,9 +46,9 @@ public class IntelligentController {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("Xname", "日期");
         jsonObject.put("Yname", "数量");
-        jsonObject.put("X", Arrays.asList(xarray));
-        jsonObject.put("Y", Arrays.asList(yarray));
-        return ResponseResult.success(jsonObject.toString());
+        jsonObject.put("X", xarray);
+        jsonObject.put("Y", yarray);
+        return ResponseResult.success(jsonObject);
     }
 
     @RequestMapping(value = "/securityAnalysis", method = RequestMethod.GET)
