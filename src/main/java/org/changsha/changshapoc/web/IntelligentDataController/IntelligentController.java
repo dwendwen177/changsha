@@ -70,7 +70,7 @@ public class IntelligentController {
     @RequestMapping(value = "/securityAnalysisGroup", method = RequestMethod.GET)
     @ResponseBody
     public ResponseResult queryMongoDBGroup(@RequestParam(name = "query", required = false) String query,
-                                            @RequestParam(name = "groupType", required = false) String type) {
+                                            @RequestParam(name = "type", required = false) String type) {
 
         Map<String, Integer> map = new HashMap<>();
         map.put("tag1", 10);
