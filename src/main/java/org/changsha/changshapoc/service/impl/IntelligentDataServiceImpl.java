@@ -78,7 +78,7 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
     public JSONObject getRes(String seqId) {
         SqlResDAO sqlResDAO = new SqlResDAO();
         sqlResDAO.setSeqid(seqId);
-        SqlResDAO res = sqlResMapper.selectOne(sqlResDAO);
+        SqlResDAO res = sqlResMapper.select(sqlResDAO).get(0);
         JSONObject jsonObject = JSON.parseObject(res.getRes());
         return jsonObject;
     }
