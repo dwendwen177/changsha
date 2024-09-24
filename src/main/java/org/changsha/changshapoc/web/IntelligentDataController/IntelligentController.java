@@ -24,10 +24,8 @@ import org.changsha.changshapoc.web.demo.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:chenxilzx1@gmail.com">theonefx</a>
@@ -53,12 +51,12 @@ public class IntelligentController {
 
     @RequestMapping(value = "/securityAnalysis", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseResult queryMongoDB() {
+    public ResponseResult queryMongoDB(@RequestParam(name = "query", required = false) String query) {
         List<CmdAndHost> cmdAndHostList = new ArrayList<>();
         CmdAndHost cmdAndHost = new CmdAndHost();
         cmdAndHost.setId("1");
         cmdAndHost.setCmd("ls -l");
-        cmdAndHost.setLogTime(System.currentTimeMillis());
+        cmdAndHost.setLogTime(new Date(System.currentTimeMillis()));
         cmdAndHost.setLoginUser("admin");
         cmdAndHost.setLoginIp("192.168.0.1");
         cmdAndHost.setAgentConnectIp("192.168.0.2");
@@ -67,5 +65,17 @@ public class IntelligentController {
         cmdAndHost.setHostTagMap(new HashMap<>());
         cmdAndHostList.add(cmdAndHost);
         return ResponseResult.success(cmdAndHostList);
+    }
+
+    @RequestMapping(value = "/securityAnalysisGroup", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult queryMongoDBGroup(@RequestParam(name = "query", required = false) String query,
+                                            @RequestParam(name = "groupType", required = false) String type) {
+
+        Map<String, Integer> map = new HashMap<>();
+        map.put("tag1", 10);
+        map.put("tag2", 20);
+        map.put("tag3", 30);
+        return ResponseResult.success(map);
     }
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.Map;
 
 @Data
@@ -12,7 +13,7 @@ import java.util.Map;
 public class Cmd {
     private String id;
     private String cmd;
-    private Long logTime;
+    private Date logTime;
     private String loginUser;
     private String loginIp;
 }

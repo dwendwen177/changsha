@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -69,7 +70,7 @@ public class CmdServiceImpl implements CmdService {
             JSONObject cmdJson = outputJsonArray.getJSONObject(i);
             Cmd cmd = new Cmd();
             cmd.setId(cmdJson.getString("agentId"));
-            cmd.setLogTime(cmdJson.getLong("logTime"));
+            cmd.setLogTime(new Date(cmdJson.getLong("logTime")));
             cmd.setCmd(cmdJson.getString("cmd"));
             cmd.setLoginUser(cmdJson.getString("loginUser"));
             cmd.setLoginIp(cmdJson.getString("loginIp"));
