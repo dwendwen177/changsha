@@ -18,12 +18,16 @@ package org.changsha.changshapoc.web.IntelligentDataController;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.changsha.changshapoc.entity.CmdAndHost;
 import org.changsha.changshapoc.web.Common.ResponseResult;
 import org.changsha.changshapoc.web.demo.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author <a href="mailto:chenxilzx1@gmail.com">theonefx</a>
@@ -45,5 +49,23 @@ public class IntelligentController {
         jsonObject.put("X", Arrays.asList(xarray));
         jsonObject.put("Y", Arrays.asList(yarray));
         return ResponseResult.success(jsonObject.toString());
+    }
+
+    @RequestMapping(value = "/securityAnalysis", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult queryMongoDB() {
+        List<CmdAndHost> cmdAndHostList = new ArrayList<>();
+        CmdAndHost cmdAndHost = new CmdAndHost();
+        cmdAndHost.setId("1");
+        cmdAndHost.setCmd("ls -l");
+        cmdAndHost.setLogTime(System.currentTimeMillis());
+        cmdAndHost.setLoginUser("admin");
+        cmdAndHost.setLoginIp("192.168.0.1");
+        cmdAndHost.setAgentConnectIp("192.168.0.2");
+        cmdAndHost.setRemark("测试数据");
+        cmdAndHost.setTagName("tag1");
+        cmdAndHost.setHostTagMap(new HashMap<>());
+        cmdAndHostList.add(cmdAndHost);
+        return ResponseResult.success(cmdAndHostList);
     }
 }
