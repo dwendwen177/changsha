@@ -44,6 +44,6 @@ public class IntelligentController {
         jsonObject.put("Yname", "数量");
         jsonObject.put("X", xarray);
         jsonObject.put("Y", yarray);
-        return ResponseResult.success(jsonObject.toString());
+        return ResponseResult.success(jsonObject);
     }
 }

@@ -32,8 +32,9 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
                 }
             }
         }
-        System.out.println(numberList);
-        System.out.println(stringList);
+
+
+
         return null;
     }
 }
