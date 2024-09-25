@@ -13,6 +13,7 @@ import org.springframework.util.Assert;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class IntelligentDataServiceImpl implements IntelligentDataService {
@@ -23,8 +24,9 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
     SqlResMapper sqlResMapper;
 
     @Override
-    public JSONObject executeSql(String sql,String seqId) {
+    public JSONObject executeSql(String sql) {
         List<Map<String, Object>> maps = studentsMapper.executeDynamicSql(sql);
+        UUID uuid = UUID.randomUUID();
 
         List<Double> numberList = new ArrayList<>();
         List<String> stringList = new ArrayList<>();
@@ -33,7 +35,7 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
         if(maps.size()==1){
             String jsonString = JSON.toJSONString(maps.get(0));
             SqlResDAO sqlResDAO = new SqlResDAO();
-            sqlResDAO.setSeqid(seqId);
+            sqlResDAO.setSeqid(uuid.toString());
             sqlResDAO.setSqlContent(sql);
             sqlResDAO.setRes(jsonString);
             int insert = sqlResMapper.insert(sqlResDAO);
@@ -42,7 +44,7 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("isGraph",false);
             jsonObject.put("value",JSON.parseObject(jsonString));
-            jsonObject.put("graphUrl","/intelligent-quest/id="+seqId);
+            jsonObject.put("graphUrl","/intelligent-quest/id="+uuid.toString());
             return jsonObject;
         }
 
@@ -62,7 +64,7 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
         jsonObject.put("Y", numberList.toArray());
 
         SqlResDAO sqlResDAO = new SqlResDAO();
-        sqlResDAO.setSeqid(seqId);
+        sqlResDAO.setSeqid(uuid.toString());
         sqlResDAO.setSqlContent(sql);
         sqlResDAO.setRes(jsonObject.toJSONString());
         int insert = sqlResMapper.insert(sqlResDAO);
@@ -70,7 +72,7 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
 
         jsonObject.put("isGraph",true);
         jsonObject.put("value",null);
-        jsonObject.put("graphUrl","/intelligent-quest/id="+seqId);
+        jsonObject.put("graphUrl","/intelligent-quest/id="+uuid.toString());
         return jsonObject;
     }
 

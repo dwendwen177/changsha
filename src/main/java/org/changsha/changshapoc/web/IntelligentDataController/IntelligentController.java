@@ -16,6 +16,7 @@
 
 package org.changsha.changshapoc.web.IntelligentDataController;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.changsha.changshapoc.service.IntelligentDataService;
@@ -55,7 +56,7 @@ public class IntelligentController {
     @RequestMapping(value = "/execSql", method = RequestMethod.POST)
     @ResponseBody
     public ResponseResult execSql(@RequestBody ExecSqlParam execSqlParam) {
-        JSONObject jsonObject = intelligentDataService.executeSql(execSqlParam.getSql(),execSqlParam.getSeqId());
+        JSONObject jsonObject = intelligentDataService.executeSql(execSqlParam.getSql());
         return ResponseResult.success(jsonObject);
     }
 
