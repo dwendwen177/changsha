@@ -8,6 +8,7 @@ import org.bson.Document;
 import org.changsha.changshapoc.service.MongoDBService;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -15,10 +16,16 @@ import java.util.Date;
 @Service
 public class MongoDBServiceImpl implements MongoDBService {
 
+    @Value("${mongo.datasource.url}")
+    private String mongoDBUrl;
+
+    @Value("${mongo.datasource.database}")
+    private String mongoDBDatabase;
+
     @Override
     public JSONArray getMongoDBData(String collectionName) {
-        MongoClient mongoClient = MongoClients.create("mongodb://qthidsro:csbank2024!@162.16.19.202:27017");
-        MongoDatabase database = mongoClient.getDatabase("wisteria_assets");
+        MongoClient mongoClient = MongoClients.create(mongoDBUrl);
+        MongoDatabase database = mongoClient.getDatabase(mongoDBDatabase);
         MongoCollection<Document> collection = database.getCollection(collectionName);
         JSONArray jsonArray = new JSONArray();
         for (Document doc : collection.find().limit(1000)) {
