@@ -41,11 +41,12 @@
         </dependency>
 
         <!-- MongoDB Driver -->
-<!--        <dependency>-->
-<!--            <groupId>org.mongodb</groupId>-->
-<!--            <artifactId>mongodb-driver-sync</artifactId>-->
-<!--            <version>5.0.0</version> &lt;!&ndash; 版本号可以适当更换 &ndash;&gt;-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>4.4.1</version> <!-- 版本号可以适当更换 -->
+        </dependency>
+
 
         <dependency>
             <groupId>org.mybatis</groupId>

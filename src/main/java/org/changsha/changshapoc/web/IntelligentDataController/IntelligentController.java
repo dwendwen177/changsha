@@ -16,20 +16,25 @@
 
 package org.changsha.changshapoc.web.IntelligentDataController;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.changsha.changshapoc.dal.Dao.CmdResDAO;
+import org.changsha.changshapoc.dal.Mapper.Secondary.CmdResMapper;
+import org.changsha.changshapoc.service.CmdService;
 import org.changsha.changshapoc.service.IntelligentDataService;
-import org.changsha.changshapoc.entity.CmdAndHost;
+import org.changsha.changshapoc.service.MongoDBService;
 import org.changsha.changshapoc.web.Common.ResponseResult;
+import org.changsha.changshapoc.web.Common.SecurityAnalysisResponse;
 import org.changsha.changshapoc.web.Param.ExecSqlParam;
-import org.changsha.changshapoc.web.demo.User;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:chenxilzx1@gmail.com">theonefx</a>
@@ -41,6 +46,15 @@ public class IntelligentController {
 
     @Autowired
     IntelligentDataService intelligentDataService;
+
+    @Autowired
+    private MongoDBService mongoDBService;
+
+    @Autowired
+    private CmdService cmdService;
+
+    @Autowired
+    private CmdResMapper cmdResMapper;
 
     @RequestMapping(value = "/execSqlMock", method = RequestMethod.GET)
     @ResponseBody
@@ -67,33 +81,34 @@ public class IntelligentController {
         return ResponseResult.success(jsonObject);
     }
 
+    @RequestMapping(value = "/queryMongoDB", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult queryMongoDB(@RequestParam(name = "query", required = false) String query) throws IOException {
+        JSONArray host = mongoDBService.getMongoDBData("host");
+        JSONArray output = mongoDBService.getMongoDBData("output");
+        SecurityAnalysisResponse securityAnalysisResponse = cmdService.handleCmd(output, host);
+        return ResponseResult.success(securityAnalysisResponse);
+    }
+
     @RequestMapping(value = "/securityAnalysis", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseResult queryMongoDB(@RequestParam(name = "query", required = false) String query) {
-        List<CmdAndHost> cmdAndHostList = new ArrayList<>();
-        CmdAndHost cmdAndHost = new CmdAndHost();
-        cmdAndHost.setId("1");
-        cmdAndHost.setCmd("ls -l");
-        cmdAndHost.setLogTime(new Date(System.currentTimeMillis()));
-        cmdAndHost.setLoginUser("admin");
-        cmdAndHost.setLoginIp("192.168.0.1");
-        cmdAndHost.setAgentConnectIp("192.168.0.2");
-        cmdAndHost.setRemark("测试数据");
-        cmdAndHost.setTagName("tag1");
-        cmdAndHost.setHostTagMap(new HashMap<>());
-        cmdAndHostList.add(cmdAndHost);
-        return ResponseResult.success(cmdAndHostList);
+    public ResponseResult securityAnalysisList(@RequestParam(name = "query", required = false) String query) {
+
+        CmdResDAO cmdResDAO = new CmdResDAO();
+        cmdResDAO.setQuestionId(query);
+        List<CmdResDAO> select = cmdResMapper.select(cmdResDAO);
+        return ResponseResult.success(select);
     }
 
     @RequestMapping(value = "/securityAnalysisGroup", method = RequestMethod.GET)
     @ResponseBody
     public ResponseResult queryMongoDBGroup(@RequestParam(name = "query", required = false) String query,
                                             @RequestParam(name = "type", required = false) String type) {
-
-        Map<String, Integer> map = new HashMap<>();
-        map.put("tag1", 10);
-        map.put("tag2", 20);
-        map.put("tag3", 30);
+        List<Map<String, Object>> list = cmdResMapper.getCmdResByGroup(type, query);
+        Map<String, Long> map = new HashMap<>();
+        for (Map<String, Object> item : list) {
+            map.put((String) item.get("key_value"), (Long) item.get("count_value"));
+        }
         return ResponseResult.success(map);
     }
 }
