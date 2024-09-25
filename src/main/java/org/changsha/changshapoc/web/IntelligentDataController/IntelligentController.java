@@ -24,6 +24,7 @@ import org.changsha.changshapoc.service.CmdService;
 import org.changsha.changshapoc.service.IntelligentDataService;
 import org.changsha.changshapoc.service.MongoDBService;
 import org.changsha.changshapoc.web.Common.ResponseResult;
+import org.changsha.changshapoc.web.Common.SecurityAnalysisGroupResponse;
 import org.changsha.changshapoc.web.Common.SecurityAnalysisResponse;
 import org.changsha.changshapoc.web.Param.ExecSqlParam;
 import org.json.JSONArray;
@@ -91,15 +92,30 @@ public class IntelligentController {
     @RequestMapping(value = "/queryMongoDB", method = RequestMethod.GET)
     @ResponseBody
     public ResponseResult queryMongoDB(@RequestParam(name = "query", required = false) String query) throws IOException {
-        JSONArray host = mongoDBService.getMongoDBData("linux_host");
-        JSONArray output = mongoDBService.getMongoDBData("detect_shellaudit_log");
+        JSONArray host = mongoDBService.getMongoDBData(hostCollection);
+        JSONArray output = mongoDBService.getMongoDBData(outputCollection);
         SecurityAnalysisResponse securityAnalysisResponse = cmdService.handleCmd(output, host);
         return ResponseResult.success(securityAnalysisResponse);
     }
 
+    @RequestMapping(value = "/queryMongoDBGroup", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult queryMongoDBGroup(@RequestParam(name = "query") String query,
+                                            @RequestParam(name = "type") String type) {
+        List<Map<String, Object>> list = cmdResMapper.getCmdResByGroup(type, query);
+        Map<String, Long> map = new HashMap<>();
+        for (Map<String, Object> item : list) {
+            map.put((String) item.get("key_value"), (Long) item.get("count_value"));
+        }
+        SecurityAnalysisGroupResponse securityAnalysisGroupResponse = new SecurityAnalysisGroupResponse();
+        securityAnalysisGroupResponse.setMap(map);
+        securityAnalysisGroupResponse.setGraphUrl("/high-risk-operation-group/" + query);
+        return ResponseResult.success(map);
+    }
+
     @RequestMapping(value = "/securityAnalysis", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseResult securityAnalysisList(@RequestParam(name = "query", required = false) String query) {
+    public ResponseResult securityAnalysisList(@RequestParam(name = "query") String query) {
 
         CmdResDAO cmdResDAO = new CmdResDAO();
         cmdResDAO.setQuestionId(query);
@@ -109,8 +125,8 @@ public class IntelligentController {
 
     @RequestMapping(value = "/securityAnalysisGroup", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseResult queryMongoDBGroup(@RequestParam(name = "query", required = false) String query,
-                                            @RequestParam(name = "type", required = false) String type) {
+    public ResponseResult securityAnalysisGroup(@RequestParam(name = "query") String query,
+                                            @RequestParam(name = "type") String type) {
         List<Map<String, Object>> list = cmdResMapper.getCmdResByGroup(type, query);
         Map<String, Long> map = new HashMap<>();
         for (Map<String, Object> item : list) {
