@@ -17,8 +17,8 @@ public class MongoDBServiceImpl implements MongoDBService {
 
     @Override
     public JSONArray getMongoDBData(String collectionName) {
-        MongoClient mongoClient = MongoClients.create("mongodb://localhost:12920");
-        MongoDatabase database = mongoClient.getDatabase("changshaBankPOC");
+        MongoClient mongoClient = MongoClients.create("mongodb://qthidsro:csbank2024!@162.16.19.202:27017");
+        MongoDatabase database = mongoClient.getDatabase("wisteria_assets");
         MongoCollection<Document> collection = database.getCollection(collectionName);
         JSONArray jsonArray = new JSONArray();
         for (Document doc : collection.find().limit(1000)) {

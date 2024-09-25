@@ -84,8 +84,8 @@ public class IntelligentController {
     @RequestMapping(value = "/queryMongoDB", method = RequestMethod.GET)
     @ResponseBody
     public ResponseResult queryMongoDB(@RequestParam(name = "query", required = false) String query) throws IOException {
-        JSONArray host = mongoDBService.getMongoDBData("host");
-        JSONArray output = mongoDBService.getMongoDBData("output");
+        JSONArray host = mongoDBService.getMongoDBData("linux_host");
+        JSONArray output = mongoDBService.getMongoDBData("detect_shellaudit_log");
         SecurityAnalysisResponse securityAnalysisResponse = cmdService.handleCmd(output, host);
         return ResponseResult.success(securityAnalysisResponse);
     }
