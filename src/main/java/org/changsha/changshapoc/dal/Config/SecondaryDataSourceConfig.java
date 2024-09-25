@@ -13,37 +13,28 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import tk.mybatis.spring.annotation.MapperScan;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
-
 @Configuration
 @Slf4j
-@MapperScan(basePackages = "org.changsha.changshapoc.dal.Mapper.Primary",sqlSessionFactoryRef = "primarySqlSessionFactory",sqlSessionTemplateRef = "primarySqlSessionTemplate")
-public class PrimaryDataSourceConfig {
+@MapperScan(basePackages = "org.changsha.changshapoc.dal.Mapper.Secondary",sqlSessionFactoryRef = "secondarySqlSessionFactory",sqlSessionTemplateRef = "secondarySqlSessionTemplate")
+public class SecondaryDataSourceConfig {
 
-    @Value("${primary.datasource.url}")
+    @Value("${secondary.datasource.url}")
     String mysqlUrl;
 
-    @Value("${primary.datasource.username}")
+    @Value("${secondary.datasource.username}")
     String mysqlUsername;
 
-    @Value("${primary.datasource.password}")
+    @Value("${secondary.datasource.password}")
     String mysqlPassword;
 
-    @Value("${app.mock}")
-    boolean isMock;
-
-    @Bean(name = "primaryMysqlDataSource")
-    @Primary
-    public DataSource primaryMysqlDataSource() throws SQLException {
-        if(isMock){
-            return new DruidDataSource();
-        }
+    @Bean(name = "secondaryMysqlDataSource")
+    public DataSource secondaryMysqlDataSource() throws SQLException {
         DruidDataSource ds = new DruidDataSource();
         ds.setUrl(mysqlUrl);
         ds.setUsername(mysqlUsername);
@@ -64,28 +55,25 @@ public class PrimaryDataSourceConfig {
         ds.setRemoveAbandoned(true);
         ds.setRemoveAbandonedTimeout(300);
         ds.init();
-        log.info("primary数据库初始化完毕============================");
+        log.info("secondary数据库初始化完毕============================");
         return ds;
     }
 
-    @Bean(name = "primaryTransactionManager")
-    @Primary
-    public DataSourceTransactionManager primaryTransactionManager() throws SQLException {
-        return new DataSourceTransactionManager(primaryMysqlDataSource());
+    @Bean(name = "secondaryTransactionManager")
+    public DataSourceTransactionManager secondaryTransactionManager() throws SQLException {
+        return new DataSourceTransactionManager(secondaryMysqlDataSource());
     }
 
-    @Bean(name = "primarySqlSessionFactory")
-    @Primary
-    public SqlSessionFactory primarySqlSessionFactory(@Qualifier("primaryMysqlDataSource") DataSource primaryDataSource)
+    @Bean(name = "secondarySqlSessionFactory")
+    public SqlSessionFactory secondarySqlSessionFactory(@Qualifier("secondaryMysqlDataSource") DataSource dataSource)
             throws Exception {
         final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-        sessionFactory.setDataSource(primaryDataSource);
+        sessionFactory.setDataSource(dataSource);
         return sessionFactory.getObject();
     }
 
-    @Bean("primarySqlSessionTemplate")
-    @Primary
-    public SqlSessionTemplate sqlSessionTemplate(@Qualifier("primaryMysqlDataSource") DataSource dataSource) throws Exception {
-        return new SqlSessionTemplate(primarySqlSessionFactory(dataSource));
+    @Bean("secondarySqlSessionTemplate")
+    public SqlSessionTemplate sqlSessionTemplate(@Qualifier("secondaryMysqlDataSource") DataSource dataSource) throws Exception {
+        return new SqlSessionTemplate(secondarySqlSessionFactory(dataSource));
     }
 }

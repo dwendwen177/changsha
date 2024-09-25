@@ -1,4 +1,4 @@
-package org.changsha.changshapoc.dal.Mapper;
+package org.changsha.changshapoc.dal.Mapper.Primary;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;

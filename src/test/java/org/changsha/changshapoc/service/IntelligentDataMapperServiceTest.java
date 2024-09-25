@@ -18,6 +18,6 @@ class IntelligentDataMapperServiceTest {
 
     @Test
     public void conflictTime() {
-        intelligentDataService.executeSql("select date,count(1) from students group by date","2");
+        intelligentDataService.executeSql("select date,count(1) from students group by date");
     }
 }

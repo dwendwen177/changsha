@@ -3,12 +3,11 @@ package org.changsha.changshapoc.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.changsha.changshapoc.dal.Dao.SqlResDAO;
-import org.changsha.changshapoc.dal.Mapper.IntelligentDataMapper;
-import org.changsha.changshapoc.dal.Mapper.SqlResMapper;
+import org.changsha.changshapoc.dal.Mapper.Primary.IntelligentDataMapper;
+import org.changsha.changshapoc.dal.Mapper.Secondary.SqlResMapper;
 import org.changsha.changshapoc.service.IntelligentDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
