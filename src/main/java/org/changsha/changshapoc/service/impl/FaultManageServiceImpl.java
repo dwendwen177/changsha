@@ -3,6 +3,7 @@ package org.changsha.changshapoc.service.impl;
 import cn.hutool.core.date.DatePattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.changsha.changshapoc.entity.ActionTrace;
 import org.changsha.changshapoc.service.FaultManageService;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
+@Slf4j
 public class FaultManageServiceImpl implements FaultManageService {
 
     @Value("${openapi.token.url}")
@@ -47,6 +49,10 @@ public class FaultManageServiceImpl implements FaultManageService {
         JsonNode jsonNode = null;
         try {
             jsonNode = objectMapper.readTree(response);
+            if (jsonNode.get("code").asInt() != 200) {
+                log.error("Failed to get token, response code: " + jsonNode.get("code").asInt() + ", response message: " + jsonNode.get("msg").asText() + ".");
+                throw new RuntimeException("Failed to get token, response code: " + jsonNode.get("code").asInt());
+            }
             return jsonNode.get("access_token").toString();
         } catch (IOException e) {
             throw new RuntimeException("Failed to parse response as JSON", e);

@@ -79,11 +79,11 @@ public class CmdServiceImpl implements CmdService {
         for (int i = 0; i < outputJsonArray.length(); i++) {
             JSONObject cmdJson = outputJsonArray.getJSONObject(i);
             Cmd cmd = new Cmd();
-            if (cmdJson.get("agentId") != null) cmd.setId(cmdJson.getString("agentId"));
-            if (cmdJson.get("logTime") != null) cmd.setLogTime((Date) cmdJson.get("logTime"));
-            if (cmdJson.get("cmd") != null) cmd.setCmd(cmdJson.getString("cmd"));
-            if (cmdJson.get("loginUser") != null) cmd.setLoginUser(cmdJson.getString("loginUser"));
-            if (cmdJson.get("loginIp") != null) cmd.setLoginIp(cmdJson.getString("loginIp"));
+            if (cmdJson.has("agentId") && !cmdJson.isNull("agentId")) cmd.setId(cmdJson.getString("agentId"));
+            if (cmdJson.has("logTime") && !cmdJson.isNull("logTime")) cmd.setLogTime((Date) cmdJson.get("logTime"));
+            if (cmdJson.has("cmd") && !cmdJson.isNull("cmd")) cmd.setCmd(cmdJson.getString("cmd"));
+            if (cmdJson.has("loginUser") && !cmdJson.isNull("loginUser")) cmd.setLoginUser(cmdJson.getString("loginUser"));
+            if (cmdJson.has("loginIp") && !cmdJson.isNull("loginIp")) cmd.setLoginIp(cmdJson.getString("loginIp"));
             cmds.add(cmd);
         }
         // 2.2 hosts
@@ -95,9 +95,9 @@ public class CmdServiceImpl implements CmdService {
                 if (hostJson.get("_id") instanceof String) host.set_id(hostJson.getString("_id"));
                 else host.set_id(hostJson.getJSONObject("_id").getString("$oid"));
             }
-            if (hostJson.get("remark") != null) host.setRemark(hostJson.getString("remark"));
-            if (hostJson.get("agentConnectIp") != null) host.setAgentConnectIp(hostJson.getString("agentConnectIp"));
-            if (hostJson.get("hostTagMap") != null) host.setHostTagMap(hostJson.getJSONObject("hostTagMap").toMap());
+            if (hostJson.has("remark") && !hostJson.isNull("remark")) host.setRemark(hostJson.getString("remark"));
+            if (hostJson.has("agentConnectIp") && !hostJson.isNull("agentConnectIp")) host.setAgentConnectIp(hostJson.getString("agentConnectIp"));
+            if (hostJson.has("hostTagMap") && !hostJson.isNull("hostTagMap")) host.setHostTagMap(hostJson.getJSONObject("hostTagMap").toMap());
             hosts.add(host);
         }
 
