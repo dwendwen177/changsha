@@ -99,6 +99,7 @@ public class FaultManageServiceImpl implements FaultManageService {
         JsonNode jsonNode = null;
         try {
             jsonNode = objectMapper.readTree(s.getBody());
+            log.info(jsonNode.toString());
             JsonNode dataNode = jsonNode.get("data");
             if (dataNode != null && dataNode.has("content") && dataNode.get("content").isArray() && dataNode.get("content").size() > 0) {
                 JsonNode content = dataNode.get("content").get(0);
