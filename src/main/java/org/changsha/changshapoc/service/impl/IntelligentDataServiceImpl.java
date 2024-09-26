@@ -9,10 +9,7 @@ import org.changsha.changshapoc.service.IntelligentDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class IntelligentDataServiceImpl implements IntelligentDataService {
@@ -27,8 +24,14 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
         List<Map<String, Object>> maps = studentsMapper.executeDynamicSql(sql);
         UUID uuid = UUID.randomUUID();
 
-        List<Double> numberList = new ArrayList<>();
+        List<Long> numberList = new ArrayList<>();
         List<String> stringList = new ArrayList<>();
+
+        if(maps.get(0).entrySet().size() > 2){
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("value","poc只支持查询结果小于等于2列的数据");
+            return jsonObject;
+        }
 
         //不是序列不画图
         if(maps.size()==1){
@@ -47,15 +50,23 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
             return jsonObject;
         }
 
+
         for (Map<String, Object> map : maps) {
-            for (Object value : map.values()) {
-                // 检查值的类型并添加到相应的列表中
-                if (value instanceof Number) {
-                    numberList.add(((Number) value).doubleValue());
-                } else if (value instanceof String) {
-                    stringList.add((String) value);
-                }
+            Iterator<Object> iterator = map.values().iterator();
+            if (iterator.hasNext()) {
+                stringList.add(String.valueOf(iterator.next()));
             }
+            if (iterator.hasNext()) {
+                numberList.add(Long.valueOf(String.valueOf(iterator.next())));
+            }
+//            for (Object value : map.values()) {
+//                // 检查值的类型并添加到相应的列表中
+//                if (value instanceof Number) {
+//                    numberList.add(((Number) value).doubleValue());
+//                } else if (value instanceof String) {
+//                    stringList.add((String) value);
+//                }
+//            }
         }
 
         JSONObject jsonObject = new JSONObject();
