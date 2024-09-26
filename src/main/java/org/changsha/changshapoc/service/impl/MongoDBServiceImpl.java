@@ -33,8 +33,8 @@ public class MongoDBServiceImpl implements MongoDBService {
         JSONArray jsonArray = new JSONArray();
         for (Document doc : collection.find().limit(limit)) {
             JSONObject jsonObject = new JSONObject(doc.toJson());
-            if (doc.getDate("logTime") != null) {
-                Date logTime = doc.getDate("logTime");
+            if (doc.getLong("logTime") != null) {
+                Date logTime = new Date(doc.getLong("logTime"));
                 jsonObject.remove("logTime");
                 jsonObject.put("logTime", logTime);
             }
