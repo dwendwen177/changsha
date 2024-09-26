@@ -79,11 +79,11 @@ public class CmdServiceImpl implements CmdService {
         for (int i = 0; i < outputJsonArray.length(); i++) {
             JSONObject cmdJson = outputJsonArray.getJSONObject(i);
             Cmd cmd = new Cmd();
-            cmd.setId(cmdJson.getString("agentId"));
-            cmd.setLogTime((Date) cmdJson.get("logTime"));
-            cmd.setCmd(cmdJson.getString("cmd"));
-            cmd.setLoginUser(cmdJson.getString("loginUser"));
-            cmd.setLoginIp(cmdJson.getString("loginIp"));
+            if (cmdJson.get("agentId") != null) cmd.setId(cmdJson.getString("agentId"));
+            if (cmdJson.get("logTime") != null) cmd.setLogTime((Date) cmdJson.get("logTime"));
+            if (cmdJson.get("cmd") != null) cmd.setCmd(cmdJson.getString("cmd"));
+            if (cmdJson.get("loginUser") != null) cmd.setLoginUser(cmdJson.getString("loginUser"));
+            if (cmdJson.get("loginIp") != null) cmd.setLoginIp(cmdJson.getString("loginIp"));
             cmds.add(cmd);
         }
         // 2.2 hosts
@@ -91,10 +91,13 @@ public class CmdServiceImpl implements CmdService {
         for (int i = 0; i < hostJsonArray.length(); i++) {
             JSONObject hostJson = hostJsonArray.getJSONObject(i);
             Host host = new Host();
-            host.set_id(hostJson.getJSONObject("_id").getString("$oid"));
-            host.setRemark(hostJson.getString("remark"));
-            host.setAgentConnectIp(hostJson.getString("agentConnectIp"));
-            host.setHostTagMap(hostJson.getJSONObject("hostTagMap").toMap());
+            if (hostJson.get("_id") != null) {
+                if (hostJson.get("_id") instanceof String) host.set_id(hostJson.getString("_id"));
+                else host.set_id(hostJson.getJSONObject("_id").getString("$oid"));
+            }
+            if (hostJson.get("remark") != null) host.setRemark(hostJson.getString("remark"));
+            if (hostJson.get("agentConnectIp") != null) host.setAgentConnectIp(hostJson.getString("agentConnectIp"));
+            if (hostJson.get("hostTagMap") != null) host.setHostTagMap(hostJson.getJSONObject("hostTagMap").toMap());
             hosts.add(host);
         }
 

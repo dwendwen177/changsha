@@ -149,12 +149,8 @@ public class IntelligentController {
     @RequestMapping(value = "/faultmanage/detail", method = RequestMethod.GET)
     @ResponseBody
     public ResponseResult queryDetail() {
-        try {
-            String token = faultManageService.getToken();
-            ActionTrace actionTrace = faultManageService.getFaultInfo(token);
-            return ResponseResult.success(actionTrace);
-        } catch (Exception e) {
-            return ResponseResult.error(500, e.getMessage());
-        }
+        String token = faultManageService.getToken();
+        ActionTrace actionTrace = faultManageService.getFaultInfo(token);
+        return ResponseResult.success(actionTrace);
     }
 }
