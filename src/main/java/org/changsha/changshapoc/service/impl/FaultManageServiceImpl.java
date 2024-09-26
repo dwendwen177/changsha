@@ -70,45 +70,50 @@ public class FaultManageServiceImpl implements FaultManageService {
         String apiUrl = detailUrl + "/server-api/action/trace";
         HttpHeaders headers = new HttpHeaders();
         headers.add("Accept", "application/json");
-        headers.add("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+//        headers.add("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
         headers.add("Authorization", "Bearer " + token);
-        headers.add("accept-encoding", "gzip");
-        headers.add("user-agent", "unirest-java/3.1.00");
-        headers.add("Connection", "Keep-Alive");
-        headers.add("Host", detailUrl);
-        headers.add("Content-Length", "123");
+//        headers.add("accept-encoding", "gzip");
+//        headers.add("user-agent", "unirest-java/3.1.00");
+//        headers.add("Connection", "Keep-Alive");
+//        headers.add("Host", detailUrl);
+//        headers.add("Content-Length", "123");
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("applicationId", "1633");
         body.add("bizSystemId", "1078");
         body.add("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
-        body.add("timePeriod", 1440);
-        body.add("pageNumber", 1);
-        body.add("pageSize", 1);
+        body.add("timePeriod", "1440");
+        body.add("pageNumber", "1");
+        body.add("pageSize", "50");
         body.add("sortField", "timestamp");
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
 
         ResponseEntity<String> s = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
         restTemplate.getMessageConverters().add(new MarshallingHttpMessageConverter());
-        if (s.getStatusCodeValue() != 200) {
+        if (s.getStatusCodeValue() != 200 || s.getBody() == null) {
+            log.error("Failed to get detail, response code: " + s.getStatusCode());
             throw new RuntimeException("Failed to get detail, response code: " + s.getStatusCode());
         }
         // 将返回结果转化为json对象
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = null;
         try {
-            jsonNode = objectMapper.readTree(s.getBody());
-            JsonNode content = jsonNode.get("data").get("content").get(0);
-            ActionTrace actionTrace = new ActionTrace();
-            actionTrace.setActionAlias(content.get("actionAlias").toString());
-            actionTrace.setActionId(content.get("actionId").asLong());
-            actionTrace.setActionType(content.get("actionType").toString());
-            actionTrace.setApplicationName(content.get("applicationName").toString());
-            actionTrace.setBizSystemName(content.get("bizSystemName").toString());
-            actionTrace.setInstanceName(content.get("instanceName").toString());
-            actionTrace.setApmData(content.get("apmData").toString());
-            return actionTrace;
-        } catch (IOException e) {
+            JsonNode dataNode = jsonNode.get("data");
+            if (dataNode != null && dataNode.has("content") && dataNode.get("content").isArray() && dataNode.get("content").size() > 0) {
+                JsonNode content = dataNode.get("content").get(0);
+                ActionTrace actionTrace = new ActionTrace();
+                actionTrace.setActionAlias(content.get("actionAlias").asText());
+                actionTrace.setActionId(content.get("actionId").asLong());
+                actionTrace.setActionType(content.get("actionType").asText());
+                actionTrace.setApplicationName(content.get("applicationName").asText());
+                actionTrace.setBizSystemName(content.get("bizSystemName").asText());
+                actionTrace.setInstanceName(content.get("instanceName").asText());
+                actionTrace.setApmData(content.get("apmData").asText());
+                return actionTrace;
+            } else {
+                throw new RuntimeException("No content found in response");
+            }
+        } catch (Exception e) {
             throw new RuntimeException("Failed to parse response as JSON", e);
         }
     }
