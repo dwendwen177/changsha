@@ -55,7 +55,7 @@ public class CmdServiceImpl implements CmdService {
 //    }
 
     @Override
-    public SecurityAnalysisResponse handleCmd(JSONArray outputJsonArray, JSONArray hostJsonArray) throws IOException {
+    public SecurityAnalysisResponse handleCmd(JSONArray outputJsonArray, JSONArray hostJsonArray, String query) throws IOException {
         // 0. 从 mongoDB 获取 output.json, host.json 这 2 个文件
         // 1. 读取配置文件(output.json, host.json)
         // 读取文件内容
@@ -64,6 +64,14 @@ public class CmdServiceImpl implements CmdService {
 //        JSONObject jsonObject = new JSONObject(new String(fileBytes, "UTF-8"));
 //        JSONArray outputJsonArray = jsonObject.getJSONArray("output");
 //        JSONArray hostJsonArray = jsonObject.getJSONArray("host");
+
+        CmdResDAO testCmdResDAO = new CmdResDAO();
+        testCmdResDAO.setQuestionId(query);
+        CmdResDAO cmdResDAO1 = cmdResMapper.selectOne(testCmdResDAO);
+        boolean flag = false;
+        if (cmdResDAO1 == null) {
+            flag = true;
+        }
 
         // 2. 根据配置文件的内容，获取全部的 cmd 命令和 host 信息
         // 2.1 cmds
@@ -101,13 +109,13 @@ public class CmdServiceImpl implements CmdService {
         List<CmdAndHost> results =new ArrayList<>();
 //        String questionId = UUID.randomUUID().toString();
 //        questionId = questionId.replaceAll("-", "");
-        Random random = new Random();
-        int randomInt = random.nextInt(1000000000); // 生成0到999999999之间的随机整数
-        String questionId = String.format("%d", randomInt);
-        for (int i = 0; i < cmds.size(); i++) {
+//        Random random = new Random();
+//        int randomInt = random.nextInt(1000000000); // 生成0到999999999之间的随机整数
+        String questionId = query;
+        for (int i = 0; i < filteredCmds.size(); i++) {
             for (int j = 0; j < hosts.size(); j++) {
                 Host host = hosts.get(j);
-                Cmd cmd = cmds.get(i);
+                Cmd cmd = filteredCmds.get(i);
                 if (host.get_id().equals(cmd.getId())) {
                     CmdAndHost cmdAndHost = BeanCopyUtils.copyObject(cmd, CmdAndHost.class);
                     cmdAndHost.setHostTagMap(host.getHostTagMap());
@@ -116,7 +124,7 @@ public class CmdServiceImpl implements CmdService {
                     cmdAndHost.setTagName(host.getHostTagMap().get("tagName").toString());
                     CmdResDAO cmdResDAO = BeanCopyUtils.copyObject(cmdAndHost, CmdResDAO.class);
                     cmdResDAO.setQuestionId(questionId);
-                    cmdResMapper.insert(cmdResDAO);
+                    if (flag) cmdResMapper.insert(cmdResDAO);
                     results.add(cmdAndHost);
                 }
             }

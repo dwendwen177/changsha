@@ -20,7 +20,9 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.changsha.changshapoc.dal.Dao.CmdResDAO;
 import org.changsha.changshapoc.dal.Mapper.Secondary.CmdResMapper;
+import org.changsha.changshapoc.entity.ActionTrace;
 import org.changsha.changshapoc.service.CmdService;
+import org.changsha.changshapoc.service.FaultManageService;
 import org.changsha.changshapoc.service.IntelligentDataService;
 import org.changsha.changshapoc.service.MongoDBService;
 import org.changsha.changshapoc.web.Common.ResponseResult;
@@ -52,6 +54,12 @@ public class IntelligentController {
     @Value("${mongo.datasource.outputcollection}")
     private String outputCollection;
 
+    @Value("${mongo.datasource.limit}")
+    private Integer outputLimit;
+
+    @Value("${mongo.datasource.limit}")
+    private Integer hostLimit;
+
     @Autowired
     IntelligentDataService intelligentDataService;
 
@@ -63,6 +71,9 @@ public class IntelligentController {
 
     @Autowired
     private CmdResMapper cmdResMapper;
+
+    @Autowired
+    private FaultManageService faultManageService;
 
     @RequestMapping(value = "/execSqlMock", method = RequestMethod.GET)
     @ResponseBody
@@ -91,10 +102,10 @@ public class IntelligentController {
 
     @RequestMapping(value = "/queryMongoDB", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseResult queryMongoDB(@RequestParam(name = "query", required = false) String query) throws IOException {
-        JSONArray host = mongoDBService.getMongoDBData(hostCollection);
-        JSONArray output = mongoDBService.getMongoDBData(outputCollection);
-        SecurityAnalysisResponse securityAnalysisResponse = cmdService.handleCmd(output, host);
+    public ResponseResult queryMongoDB(@RequestParam(name = "query") String query) throws IOException {
+        JSONArray host = mongoDBService.getMongoDBData(hostCollection, hostLimit);
+        JSONArray output = mongoDBService.getMongoDBData(outputCollection, outputLimit);
+        SecurityAnalysisResponse securityAnalysisResponse = cmdService.handleCmd(output, host, query);
         return ResponseResult.success(securityAnalysisResponse);
     }
 
@@ -133,5 +144,17 @@ public class IntelligentController {
             map.put((String) item.get("key_value"), (Long) item.get("count_value"));
         }
         return ResponseResult.success(map);
+    }
+
+    @RequestMapping(value = "/faultmanage/detail", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseResult queryDetail() {
+        try {
+            String token = faultManageService.getToken();
+            ActionTrace actionTrace = faultManageService.getFaultInfo(token);
+            return ResponseResult.success(actionTrace);
+        } catch (Exception e) {
+            return ResponseResult.error(500, e.getMessage());
+        }
     }
 }

@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface CmdService {
 
-    public SecurityAnalysisResponse handleCmd(JSONArray outputJsonArray, JSONArray hostJsonArray) throws IOException;
+    public SecurityAnalysisResponse handleCmd(JSONArray outputJsonArray, JSONArray hostJsonArray, String query) throws IOException;
 
 }

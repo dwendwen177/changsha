@@ -47,6 +47,17 @@
             <version>4.4.1</version> <!-- 版本号可以适当更换 -->
         </dependency>
 
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.15</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>5.8.20</version>
+        </dependency>
 
         <dependency>
             <groupId>org.mybatis</groupId>
