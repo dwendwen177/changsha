@@ -100,6 +100,10 @@ public class FaultManageServiceImpl implements FaultManageService {
         try {
             jsonNode = objectMapper.readTree(s.getBody());
             log.info(jsonNode.toString());
+            if (jsonNode == null || !jsonNode.has("code") || jsonNode.get("code").asInt() != 200) {
+                log.info("Failed to get detail, response code: " + jsonNode.get("code").asInt());
+                throw new RuntimeException("Failed to get detail, response code: " + jsonNode.get("code").asInt());
+            }
             JsonNode dataNode = jsonNode.get("data");
             if (dataNode != null && dataNode.has("content") && dataNode.get("content").isArray() && dataNode.get("content").size() > 0) {
                 JsonNode content = dataNode.get("content").get(0);
