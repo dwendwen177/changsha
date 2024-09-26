@@ -120,7 +120,7 @@ public class IntelligentController {
         }
         SecurityAnalysisGroupResponse securityAnalysisGroupResponse = new SecurityAnalysisGroupResponse();
         securityAnalysisGroupResponse.setMap(map);
-        securityAnalysisGroupResponse.setGraphUrl("/high-risk-operation-group/" + query);
+        securityAnalysisGroupResponse.setGraphUrl("http://100.115.88.92:18090/high-risk-operation-group/" + query);
         return ResponseResult.success(map);
     }
 

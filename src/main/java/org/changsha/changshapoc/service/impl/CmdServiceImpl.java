@@ -131,7 +131,7 @@ public class CmdServiceImpl implements CmdService {
         }
         SecurityAnalysisResponse securityAnalysisResponse = new SecurityAnalysisResponse();
         securityAnalysisResponse.setCmdAndHosts(results);
-        securityAnalysisResponse.setGraphUrl("/high-risk-operation/" + questionId);
+        securityAnalysisResponse.setGraphUrl("http://100.115.88.92:18090/high-risk-operation/" + questionId);
 
         // 6. 将处理后的内容存到数据库，并返回 json 对象
 

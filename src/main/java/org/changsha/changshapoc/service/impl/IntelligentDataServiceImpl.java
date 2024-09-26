@@ -46,7 +46,7 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("isGraph",false);
             jsonObject.put("value",JSON.parseObject(jsonString));
-            jsonObject.put("graphUrl","/intelligent-quest/id="+uuid.toString());
+            jsonObject.put("graphUrl","http://100.115.88.92:18090/intelligent-quest/"+uuid.toString());
             return jsonObject;
         }
 
@@ -82,7 +82,7 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
 
         jsonObject.put("isGraph",true);
         jsonObject.put("value",null);
-        jsonObject.put("graphUrl","/intelligent-quest/id="+uuid.toString());
+        jsonObject.put("graphUrl","http://100.115.88.92:18090/intelligent-quest/"+uuid.toString());
         return jsonObject;
     }
 
