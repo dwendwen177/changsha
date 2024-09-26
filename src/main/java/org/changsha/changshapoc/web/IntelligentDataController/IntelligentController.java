@@ -146,7 +146,7 @@ public class IntelligentController {
         return ResponseResult.success(map);
     }
 
-    @RequestMapping(value = "/faultmanage/detail", method = RequestMethod.POST)
+    @RequestMapping(value = "/faultmanage/detail", method = RequestMethod.GET)
     @ResponseBody
     public ResponseResult queryDetail() {
         try {
