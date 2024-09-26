@@ -43,7 +43,7 @@ public class FaultManageServiceImpl implements FaultManageService {
     @Override
     public String getToken() {
         long timeMillis = System.currentTimeMillis();
-        String authStr = "api_Key=" + apiKey + "&secret_key=" + secretKey + "&timestamp="+ timeMillis;
+        String authStr = "api_key=" + apiKey + "&secret_key=" + secretKey + "&timestamp="+ timeMillis;
         String auth = DigestUtils.md5Hex(authStr);
         String apiUrl = tokenUrl + "/auth-api/auth/token?api_key=" + apiKey + "&auth=" + auth + "&timestamp=" + timeMillis;
         // 调用网络请求获取返回结果
@@ -149,6 +149,10 @@ public class FaultManageServiceImpl implements FaultManageService {
             // 抛出异常
             throw new RuntimeException("Failed to get token", e);
         }
+    }
+
+    public static void main(String[] args) {
+
     }
 
 }
