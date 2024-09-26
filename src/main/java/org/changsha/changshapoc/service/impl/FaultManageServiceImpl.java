@@ -43,7 +43,7 @@ public class FaultManageServiceImpl implements FaultManageService {
     @Override
     public String getToken() {
         long timeMillis = System.currentTimeMillis();
-        String authStr = "api_key=" + apiKey + "&secret_key=" + secretKey + "&timestamp="+ timeMillis;
+        String authStr = "api_key=" + apiKey + "&secret_key=" + secretKey + "&timestamp=" + timeMillis;
         String auth = DigestUtils.md5Hex(authStr);
         String apiUrl = tokenUrl + "/auth-api/auth/token?api_key=" + apiKey + "&auth=" + auth + "&timestamp=" + timeMillis;
         // 调用网络请求获取返回结果
@@ -67,23 +67,28 @@ public class FaultManageServiceImpl implements FaultManageService {
 
     @Override
     public ActionTrace getFaultInfo(String token) {
-        String apiUrl =detailUrl+"/server-api/action/trace";
+        String apiUrl = detailUrl + "/server-api/action/trace";
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Accept", MediaType.ALL_VALUE);
-        headers.add("Content-Type", MediaType.MULTIPART_FORM_DATA_VALUE);
-        headers.add("Authorization","Bearer " + token);
+        headers.add("Accept", "application/json");
+        headers.add("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        headers.add("Authorization", "Bearer " + token);
+        headers.add("accept-encoding", "gzip");
+        headers.add("user-agent", "unirest-java/3.1.00");
+        headers.add("Connection", "Keep-Alive");
+        headers.add("Host", detailUrl);
+        headers.add("Content-Length", "123");
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("applicationId", "1633");
-        body.add("bizSystemId","1078");
+        body.add("bizSystemId", "1078");
         body.add("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
-        body.add("timePeriod",1440);
-        body.add("pageNumber",1);
-        body.add("pageSize",1);
-        body.add("sortField","timestamp");
+        body.add("timePeriod", 1440);
+        body.add("pageNumber", 1);
+        body.add("pageSize", 1);
+        body.add("sortField", "timestamp");
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<String> s = restTemplate.exchange(apiUrl, HttpMethod.POST,httpEntity,String.class);
+        ResponseEntity<String> s = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
         restTemplate.getMessageConverters().add(new MarshallingHttpMessageConverter());
         if (s.getStatusCodeValue() != 200) {
             throw new RuntimeException("Failed to get detail, response code: " + s.getStatusCode());
