@@ -103,13 +103,13 @@ public class FaultManageServiceImpl implements FaultManageService {
             if (dataNode != null && dataNode.has("content") && dataNode.get("content").isArray() && dataNode.get("content").size() > 0) {
                 JsonNode content = dataNode.get("content").get(0);
                 ActionTrace actionTrace = new ActionTrace();
-                actionTrace.setActionAlias(content.get("actionAlias").asText());
-                actionTrace.setActionId(content.get("actionId").asLong());
-                actionTrace.setActionType(content.get("actionType").asText());
-                actionTrace.setApplicationName(content.get("applicationName").asText());
-                actionTrace.setBizSystemName(content.get("bizSystemName").asText());
-                actionTrace.setInstanceName(content.get("instanceName").asText());
-                actionTrace.setApmData(content.get("apmData").asText());
+                if (content.has("actionAlias") && content.get("actionAlias") != null) actionTrace.setActionAlias(content.get("actionAlias").asText());
+                if (content.has("actionId") && content.get("actionId") != null) actionTrace.setActionId(content.get("actionId").asLong());
+                if (content.has("actionType") && content.get("actionType") != null) actionTrace.setActionType(content.get("actionType").asText());
+                if (content.has("applicationName") && content.get("applicationName") != null) actionTrace.setApplicationName(content.get("applicationName").asText());
+                if (content.has("bizSystemName") && content.get("bizSystemName") != null) actionTrace.setBizSystemName(content.get("bizSystemName").asText());
+                if (content.has("instanceName") && content.get("instanceName") != null) actionTrace.setInstanceName(content.get("instanceName").asText());
+                if (content.has("apmData") && content.get("apmData") != null) actionTrace.setApmData(content.get("apmData").asText());
                 return actionTrace;
             } else {
                 throw new RuntimeException("No content found in response");
