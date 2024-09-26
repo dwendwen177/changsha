@@ -33,10 +33,15 @@ public class FaultManageServiceImpl implements FaultManageService {
     @Value("${openapi.detail.url}")
     private String detailUrl;
 
+    @Value("${openapi.apikey}")
+    private String apiKey;
+
+    @Value("${openapi.secretkey}")
+    private String secretKey;
+
+
     @Override
     public String getToken() {
-        String apiKey = "n8peh0G8C00YjkVG9QyiklVmYjFuHMJ5";
-        String secretKey = "nenynf5xn75mf5gecbybaab38bb35yc4";
         long timeMillis = System.currentTimeMillis();
         String authStr = "api_Key=" + apiKey + "&secret_key=" + secretKey + "&timestamp="+ timeMillis;
         String auth = DigestUtils.md5Hex(authStr);
@@ -49,6 +54,7 @@ public class FaultManageServiceImpl implements FaultManageService {
         JsonNode jsonNode = null;
         try {
             jsonNode = objectMapper.readTree(response);
+            log.info(jsonNode.toString());
             if (jsonNode.get("code").asInt() != 200) {
                 log.error("Failed to get token, response code: " + jsonNode.get("code").asInt() + ", response message: " + jsonNode.get("msg").asText() + ".");
                 throw new RuntimeException("Failed to get token, response code: " + jsonNode.get("code").asInt());
