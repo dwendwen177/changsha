@@ -24,7 +24,7 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
         List<Map<String, Object>> maps = studentsMapper.executeDynamicSql(sql);
         UUID uuid = UUID.randomUUID();
 
-        List<Long> numberList = new ArrayList<>();
+        List<String> numberList = new ArrayList<>();
         List<String> stringList = new ArrayList<>();
 
         if(maps.get(0).entrySet().size() > 2){
@@ -57,7 +57,7 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
                 stringList.add(String.valueOf(iterator.next()));
             }
             if (iterator.hasNext()) {
-                numberList.add(Long.valueOf(String.valueOf(iterator.next())));
+                numberList.add(String.valueOf(iterator.next()));
             }
 //            for (Object value : map.values()) {
 //                // 检查值的类型并添加到相应的列表中
