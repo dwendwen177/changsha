@@ -124,7 +124,7 @@ public class CmdServiceImpl implements CmdService {
                     cmdAndHost.setHostTagMap(host.getHostTagMap());
                     cmdAndHost.setRemark(host.getRemark());
                     cmdAndHost.setAgentConnectIp(host.getAgentConnectIp());
-                    if (host.getHostTagMap().containsKey("tagName") && host.getHostTagMap().get("tagName") != null) cmdAndHost.setTagName(host.getHostTagMap().get("tagName").toString());
+                    if (host.getHostTagMap() != null && host.getHostTagMap().containsKey("tagName") && host.getHostTagMap().get("tagName") != null) cmdAndHost.setTagName(host.getHostTagMap().get("tagName").toString());
                     CmdResDAO cmdResDAO = BeanCopyUtils.copyObject(cmdAndHost, CmdResDAO.class);
                     cmdResDAO.setQuestionId(questionId);
                     if (flag) cmdResMapper.insert(cmdResDAO);
