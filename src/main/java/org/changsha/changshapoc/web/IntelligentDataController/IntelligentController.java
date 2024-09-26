@@ -117,6 +117,7 @@ public class IntelligentController {
         List<Map<String, Object>> list = cmdResMapper.getCmdResByGroup(type, numbersOnly);
         Map<String, Long> map = new HashMap<>();
         for (Map<String, Object> item : list) {
+            if (item.get("key_value") == null) item.put("key_value", "unknown");
             map.put((String) item.get("key_value"), (Long) item.get("count_value"));
         }
         SecurityAnalysisGroupResponse securityAnalysisGroupResponse = new SecurityAnalysisGroupResponse();
@@ -143,6 +144,7 @@ public class IntelligentController {
         List<Map<String, Object>> list = cmdResMapper.getCmdResByGroup(type, numbersOnly);
         Map<String, Long> map = new HashMap<>();
         for (Map<String, Object> item : list) {
+            if (item.get("key_value") == null) item.put("key_value", "unknown");
             map.put((String) item.get("key_value"), (Long) item.get("count_value"));
         }
         return ResponseResult.success(map);
