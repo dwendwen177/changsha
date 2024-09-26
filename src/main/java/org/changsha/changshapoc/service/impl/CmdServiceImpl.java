@@ -67,9 +67,9 @@ public class CmdServiceImpl implements CmdService {
 
         CmdResDAO testCmdResDAO = new CmdResDAO();
         testCmdResDAO.setQuestionId(query);
-        CmdResDAO cmdResDAO1 = cmdResMapper.selectOne(testCmdResDAO);
+        List<CmdResDAO> cmdResDAO1 = cmdResMapper.select(testCmdResDAO);
         boolean flag = false;
-        if (cmdResDAO1 == null) {
+        if (cmdResDAO1 == null || cmdResDAO1.size() == 0) {
             flag = true;
         }
 
@@ -91,7 +91,7 @@ public class CmdServiceImpl implements CmdService {
         for (int i = 0; i < hostJsonArray.length(); i++) {
             JSONObject hostJson = hostJsonArray.getJSONObject(i);
             Host host = new Host();
-            host.set_id(hostJson.getString("_id"));
+            host.set_id(hostJson.getJSONObject("_id").getString("$oid"));
             host.setRemark(hostJson.getString("remark"));
             host.setAgentConnectIp(hostJson.getString("agentConnectIp"));
             host.setHostTagMap(hostJson.getJSONObject("hostTagMap").toMap());
