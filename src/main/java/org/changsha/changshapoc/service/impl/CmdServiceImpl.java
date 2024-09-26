@@ -64,9 +64,9 @@ public class CmdServiceImpl implements CmdService {
 //        JSONObject jsonObject = new JSONObject(new String(fileBytes, "UTF-8"));
 //        JSONArray outputJsonArray = jsonObject.getJSONArray("output");
 //        JSONArray hostJsonArray = jsonObject.getJSONArray("host");
-
+        String numbersOnly = query.replaceAll("[^0-9]", "");
         CmdResDAO testCmdResDAO = new CmdResDAO();
-        testCmdResDAO.setQuestionId(query);
+        testCmdResDAO.setQuestionId(numbersOnly);
         List<CmdResDAO> cmdResDAO1 = cmdResMapper.select(testCmdResDAO);
         boolean flag = false;
         if (cmdResDAO1 == null || cmdResDAO1.size() == 0) {
@@ -114,7 +114,7 @@ public class CmdServiceImpl implements CmdService {
 //        questionId = questionId.replaceAll("-", "");
 //        Random random = new Random();
 //        int randomInt = random.nextInt(1000000000); // 生成0到999999999之间的随机整数
-        String questionId = query;
+        String questionId = numbersOnly;
         for (int i = 0; i < filteredCmds.size(); i++) {
             for (int j = 0; j < hosts.size(); j++) {
                 Host host = hosts.get(j);

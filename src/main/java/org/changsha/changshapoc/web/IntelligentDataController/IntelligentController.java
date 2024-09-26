@@ -113,23 +113,24 @@ public class IntelligentController {
     @ResponseBody
     public ResponseResult queryMongoDBGroup(@RequestParam(name = "query") String query,
                                             @RequestParam(name = "type") String type) {
-        List<Map<String, Object>> list = cmdResMapper.getCmdResByGroup(type, query);
+        String numbersOnly = query.replaceAll("[^0-9]", "");
+        List<Map<String, Object>> list = cmdResMapper.getCmdResByGroup(type, numbersOnly);
         Map<String, Long> map = new HashMap<>();
         for (Map<String, Object> item : list) {
             map.put((String) item.get("key_value"), (Long) item.get("count_value"));
         }
         SecurityAnalysisGroupResponse securityAnalysisGroupResponse = new SecurityAnalysisGroupResponse();
         securityAnalysisGroupResponse.setMap(map);
-        securityAnalysisGroupResponse.setGraphUrl("http://100.115.88.92:18090/high-risk-operation-group/" + query);
+        securityAnalysisGroupResponse.setGraphUrl("http://100.115.88.92:18090/high-risk-operation-group/" + numbersOnly);
         return ResponseResult.success(map);
     }
 
     @RequestMapping(value = "/securityAnalysis", method = RequestMethod.GET)
     @ResponseBody
     public ResponseResult securityAnalysisList(@RequestParam(name = "query") String query) {
-
+        String numbersOnly = query.replaceAll("[^0-9]", "");
         CmdResDAO cmdResDAO = new CmdResDAO();
-        cmdResDAO.setQuestionId(query);
+        cmdResDAO.setQuestionId(numbersOnly);
         List<CmdResDAO> select = cmdResMapper.select(cmdResDAO);
         return ResponseResult.success(select);
     }
@@ -138,7 +139,8 @@ public class IntelligentController {
     @ResponseBody
     public ResponseResult securityAnalysisGroup(@RequestParam(name = "query") String query,
                                             @RequestParam(name = "type") String type) {
-        List<Map<String, Object>> list = cmdResMapper.getCmdResByGroup(type, query);
+        String numbersOnly = query.replaceAll("[^0-9]", "");
+        List<Map<String, Object>> list = cmdResMapper.getCmdResByGroup(type, numbersOnly);
         Map<String, Long> map = new HashMap<>();
         for (Map<String, Object> item : list) {
             map.put((String) item.get("key_value"), (Long) item.get("count_value"));
