@@ -60,6 +60,9 @@ public class IntelligentController {
     @Value("${mongo.datasource.limit}")
     private Integer hostLimit;
 
+    @Value("${openapi.detail.delay}")
+    private Long delay;
+
     @Autowired
     IntelligentDataService intelligentDataService;
 
@@ -155,6 +158,11 @@ public class IntelligentController {
     @ResponseBody
     public ResponseResult queryDetail() {
         String token = faultManageService.getToken();
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         ActionTrace actionTrace = faultManageService.getFaultInfo(token);
         return ResponseResult.success(actionTrace);
     }
@@ -163,6 +171,11 @@ public class IntelligentController {
     @ResponseBody
     public ResponseResult queryDetail2() {
         String token = faultManageService.getToken();
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         ActionTrace actionTrace = faultManageService.getFaultInfo(token);
         return ResponseResult.success(actionTrace);
     }
