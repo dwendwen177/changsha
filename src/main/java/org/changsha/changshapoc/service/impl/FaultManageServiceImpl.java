@@ -9,6 +9,8 @@ import kong.unirest.Unirest;
 import kong.unirest.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.changsha.changshapoc.entity.ActionTrace;
 import org.changsha.changshapoc.service.FaultManageService;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Service
 @Slf4j
@@ -84,6 +87,7 @@ public class FaultManageServiceImpl implements FaultManageService {
             headers.put("Accept", "application/json");
 //        headers.add("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
             headers.put("Authorization", "Bearer " + token);
+            log.info(headers.toString());
             log.info(token);
 //        headers.add("accept-encoding", "gzip");
 //        headers.add("user-agent", "unirest-java/3.1.00");
@@ -92,10 +96,10 @@ public class FaultManageServiceImpl implements FaultManageService {
 //        headers.add("Content-Length", "123");
             HttpResponse<kong.unirest.JsonNode> response = Unirest.post(apiUrl)
                     .headers(headers)
-                    .field("applicationId", "1633")
+                    //.field("applicationId", "1633")
                     .field("bizSystemId", "1078")
-                    .field("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)))
-                    .field("timePeriod", "1440")
+                    .field("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                    .field("timePeriod", String.valueOf(1*24*60))
                     .field("pageNumber", "1")
                     .field("pageSize", "50")
                     .field("sortField", "timestamp")
@@ -286,6 +290,28 @@ public class FaultManageServiceImpl implements FaultManageService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse response as JSON", e);
         }
+    }
+
+    @Override
+    public ActionTrace getFaultInfo99(String token) {
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Accept", "application/json");
+//        headers.add("Authorization", "Bearer " + token);
+//        String applicationId = "1633";
+//        String bizSystemId = "1078";
+//        String endTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+//        String timePeriod = "1440";
+//        String pageNumber = "1";
+//        String pageSize = "50";
+//        String sortField = "timestamp";
+//        // 创建请求体
+//        String requestBody = "{\"applicationId\":\"" + applicationId + "\",\"bizSystemId\":\"" + bizSystemId + "\",\"endTime\":\"" + endTime + "\",\"timePeriod\":\"" + timePeriod + "\",\"pageNumber\":\"" + pageNumber + "\",\"pageSize\":\"" + pageSize + "\",\"sortField\":\"" + sortField + "\"}";
+//        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+//        // 发送POST请求
+//        ResponseEntity<String> response = restTemplate.exchange("http://your-api-url", HttpMethod.POST, entity, String.class);
+//        // 打印响应
+//        System.out.println(response.getBody());
+        return null;
     }
 
     private List<HttpMessageConverter<?>> getConverts() {

@@ -196,4 +196,18 @@ public class IntelligentController {
         ActionTrace actionTrace = faultManageService.getFaultInfo3(token);
         return ResponseResult.success(actionTrace);
     }
+
+    @RequestMapping(value = "/faultmanage/detail99", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult queryDetail99() {
+        String token = faultManageService.getToken();
+        log.info("token99:" + token);
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        ActionTrace actionTrace = faultManageService.getFaultInfo3(token);
+        return ResponseResult.success(actionTrace);
+    }
 }
