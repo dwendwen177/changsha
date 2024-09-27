@@ -200,9 +200,9 @@ public class FaultManageServiceImpl implements FaultManageService {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
 
+        restTemplate.setMessageConverters(getConverts());
         ResponseEntity<String> s = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
 
-        restTemplate.setMessageConverters(getConverts());
         if (s.getStatusCodeValue() != 200 || s.getBody() == null) {
             log.error("Failed to get detail, response code: " + s.getStatusCode());
             throw new RuntimeException("Failed to get detail, response code: " + s.getStatusCode());
