@@ -165,6 +165,7 @@ public class IntelligentController {
         }
         ActionTrace actionTrace = faultManageService.getFaultInfo(token);
         return ResponseResult.success(actionTrace);
+        //return ResponseResult.success();
     }
 
     @RequestMapping(value = "/faultmanage/detail2", method = RequestMethod.GET)
