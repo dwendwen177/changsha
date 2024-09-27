@@ -126,8 +126,7 @@ public class IntelligentController {
         SecurityAnalysisGroupResponse securityAnalysisGroupResponse = new SecurityAnalysisGroupResponse();
         securityAnalysisGroupResponse.setMap(map);
         securityAnalysisGroupResponse.setGraphUrl("http://100.115.88.92:18090/high-risk-operation-group/" + numbersOnly);
-        return ResponseResult.success(map);
-        //return ResponseResult.success();
+        return ResponseResult.success(securityAnalysisGroupResponse);
     }
 
     @RequestMapping(value = "/securityAnalysis", method = RequestMethod.GET)
