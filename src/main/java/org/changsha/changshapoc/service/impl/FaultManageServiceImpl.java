@@ -1,23 +1,19 @@
 package org.changsha.changshapoc.service.impl;
 
-import cn.hutool.core.date.DatePattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import kong.unirest.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.changsha.changshapoc.entity.ActionTrace;
 import org.changsha.changshapoc.service.FaultManageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -30,10 +26,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -192,13 +188,15 @@ public class FaultManageServiceImpl implements FaultManageService {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("applicationId", "1633");
         body.add("bizSystemId", "1078");
-        body.add("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
+        body.add("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         body.add("timePeriod", "1440");
         body.add("pageNumber", "1");
         body.add("pageSize", "50");
         body.add("sortField", "timestamp");
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
+        restTemplate.setMessageConverters(getConverts());
+        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         restTemplate.setMessageConverters(getConverts());
         ResponseEntity<String> s = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
@@ -241,55 +239,59 @@ public class FaultManageServiceImpl implements FaultManageService {
     @Override
     public ActionTrace getFaultInfo3(String token) {
         String apiUrl = detailUrl + "/server-api/action/trace";
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Accept", "application/json");
-        headers.add("Authorization", "Bearer " + token);
-
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("applicationId", "1633");
-        body.add("bizSystemId", "1078");
-        body.add("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
-        body.add("timePeriod", "1440");
-        body.add("pageNumber", "1");
-        body.add("pageSize", "50");
-        body.add("sortField", "timestamp");
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
-
-        ResponseEntity<String> s = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
-        restTemplate.getMessageConverters().add(new MarshallingHttpMessageConverter());
-        if (s.getStatusCodeValue() != 200 || s.getBody() == null) {
-            log.error("Failed to get detail, response code: " + s.getStatusCode());
-            throw new RuntimeException("Failed to get detail, response code: " + s.getStatusCode());
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Accept", "application/json");
+        headers.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        log.info(token);
+        headers.put("Authorization", "Bearer " + token);
+        headers.put("accept-encoding", "gzip");
+        headers.put("user-agent", "unirest-java/3.1.00");
+        headers.put("Connection", "Keep-Alive");
+        headers.put("Host", detailUrl);
+        headers.put("Content-Length", "123");
+        HttpResponse<kong.unirest.JsonNode> response = Unirest.post(apiUrl)
+                .headers(headers)
+                .field("applicationId", "1633")
+                .field("bizSystemId", "1078")
+                .field("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .field("timePeriod", "1440")
+                .field("pageNumber", "1")
+                .field("pageSize", "50")
+                .field("sortField", "timestamp")
+                .asJson();
+        int statusCode = response.getStatus();
+        if (!response.isSuccess()) {
+            log.info("[!response.isSuccess()] Failed to get detail, response code: " + statusCode);
+            return new ActionTrace();
         }
-        // 将返回结果转化为json对象
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = null;
-        try {
-            jsonNode = objectMapper.readTree(s.getBody());
-            log.info(jsonNode.toString());
-            if (jsonNode == null || !jsonNode.has("code") || jsonNode.get("code").asInt() != 200) {
-                log.info("Failed to get detail, response code: " + jsonNode.get("code").asInt());
-                throw new RuntimeException("Failed to get detail, response code: " + jsonNode.get("code").asInt());
-            }
-            JsonNode dataNode = jsonNode.get("data");
-            if (dataNode != null && dataNode.has("content") && dataNode.get("content").isArray() && dataNode.get("content").size() > 0) {
-                JsonNode content = dataNode.get("content").get(0);
-                ActionTrace actionTrace = new ActionTrace();
-                if (content.has("actionAlias") && content.get("actionAlias") != null) actionTrace.setActionAlias(content.get("actionAlias").asText());
-                if (content.has("actionId") && content.get("actionId") != null) actionTrace.setActionId(content.get("actionId").asLong());
-                if (content.has("actionType") && content.get("actionType") != null) actionTrace.setActionType(content.get("actionType").asText());
-                if (content.has("applicationName") && content.get("applicationName") != null) actionTrace.setApplicationName(content.get("applicationName").asText());
-                if (content.has("bizSystemName") && content.get("bizSystemName") != null) actionTrace.setBizSystemName(content.get("bizSystemName").asText());
-                if (content.has("instanceName") && content.get("instanceName") != null) actionTrace.setInstanceName(content.get("instanceName").asText());
-                if (content.has("apmData") && content.get("apmData") != null) actionTrace.setApmData(content.get("apmData").asText());
-                return actionTrace;
-            } else {
-                throw new RuntimeException("No content found in response");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to parse response as JSON", e);
+        kong.unirest.JsonNode body = response.getBody();
+        JSONObject jsonNode = null;
+        if (body != null) jsonNode = body.getObject();
+        log.info(jsonNode.toString());
+        if (jsonNode == null || !jsonNode.has("code") || jsonNode.getInt("code") != 200) {
+            log.info("[jsonNode == null || !jsonNode.has(\"code\") || jsonNode.getInt(\"code\") != 200] Failed to get detail, response code: " + jsonNode.getInt("code"));
+            return new ActionTrace();
         }
+        JSONObject dataNode = (JSONObject) jsonNode.get("data");
+        ActionTrace actionTrace = new ActionTrace();
+        if (dataNode != null && dataNode.has("content") && !dataNode.getJSONArray("content").isEmpty() && dataNode.getJSONArray("content").length() > 0) {
+            JSONObject content = (JSONObject) dataNode.getJSONArray("content").get(0);
+            if (content.has("actionAlias") && content.get("actionAlias") != null)
+                actionTrace.setActionAlias(content.getString("actionAlias"));
+            if (content.has("actionId") && content.get("actionId") != null)
+                actionTrace.setActionId(content.getLong("actionId"));
+            if (content.has("actionType") && content.get("actionType") != null)
+                actionTrace.setActionType(content.getString("actionType"));
+            if (content.has("applicationName") && content.get("applicationName") != null)
+                actionTrace.setApplicationName(content.getString("applicationName"));
+            if (content.has("bizSystemName") && content.get("bizSystemName") != null)
+                actionTrace.setBizSystemName(content.getString("bizSystemName"));
+            if (content.has("instanceName") && content.get("instanceName") != null)
+                actionTrace.setInstanceName(content.getString("instanceName"));
+            if (content.has("apmData") && content.get("apmData") != null)
+                actionTrace.setApmData(content.getString("apmData"));
+        }
+        return actionTrace;
     }
 
     @Override
