@@ -42,9 +42,9 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
         List<String> numberList = new ArrayList<>();
         List<String> stringList = new ArrayList<>();
 
-        if(maps.get(0).entrySet().size() > 2){
+        if(maps.isEmpty()){
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("value","poc只支持查询结果小于等于2列的数据");
+            jsonObject.put("value","数据为空");
             return jsonObject;
         }
 
@@ -65,6 +65,11 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
             return jsonObject;
         }
 
+        if(maps.get(0).entrySet().size() > 2){
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("value","poc只支持查询结果小于等于2列的数据");
+            return jsonObject;
+        }
 
         for (Map<String, Object> map : maps) {
 
@@ -125,10 +130,13 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
         Matcher matcher = pattern.matcher(sql);
         if (matcher.find()) {
             String fieldList = matcher.group(1);
-            String[] fieldArray = fieldList.split(",\\s*"); // 分割字段
+            String[] fieldArray = fieldList.split(",\\s*"); // Split fields
+
             for (String field : fieldArray) {
-                // 提取字段名并处理 AS
-                String[] parts = field.split("\\s+as\\s+", 2); // 分割 AS
+                // 使用正则匹配可能的 AS 语法，忽略大小写和多余空格
+                Pattern asPattern = Pattern.compile("\\s+as\\s+", Pattern.CASE_INSENSITIVE);
+                String[] parts = asPattern.split(field, 2); // Split on AS
+
                 if (parts.length == 2) {
                     // 如果有 AS，则取 AS 之后的部分作为字段名
                     fields.add(parts[1].trim());

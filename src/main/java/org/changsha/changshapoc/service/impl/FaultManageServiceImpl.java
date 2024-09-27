@@ -198,6 +198,7 @@ public class FaultManageServiceImpl implements FaultManageService {
         restTemplate.setMessageConverters(getConverts());
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
+        restTemplate.setMessageConverters(getConverts());
         ResponseEntity<String> s = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
 
         if (s.getStatusCodeValue() != 200 || s.getBody() == null) {
