@@ -222,6 +222,60 @@ public class FaultManageServiceImpl implements FaultManageService {
         }
     }
 
+    @Override
+    public ActionTrace getFaultInfo3(String token) {
+        String apiUrl = detailUrl + "/server-api/action/trace";
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Accept", "application/json");
+        headers.add("Authorization", "Bearer " + token);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("applicationId", "1633");
+        body.add("bizSystemId", "1078");
+        body.add("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
+        body.add("timePeriod", "1440");
+        body.add("pageNumber", "1");
+        body.add("pageSize", "50");
+        body.add("sortField", "timestamp");
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> s = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
+        restTemplate.getMessageConverters().add(new MarshallingHttpMessageConverter());
+        if (s.getStatusCodeValue() != 200 || s.getBody() == null) {
+            log.error("Failed to get detail, response code: " + s.getStatusCode());
+            throw new RuntimeException("Failed to get detail, response code: " + s.getStatusCode());
+        }
+        // 将返回结果转化为json对象
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = null;
+        try {
+            jsonNode = objectMapper.readTree(s.getBody());
+            log.info(jsonNode.toString());
+            if (jsonNode == null || !jsonNode.has("code") || jsonNode.get("code").asInt() != 200) {
+                log.info("Failed to get detail, response code: " + jsonNode.get("code").asInt());
+                throw new RuntimeException("Failed to get detail, response code: " + jsonNode.get("code").asInt());
+            }
+            JsonNode dataNode = jsonNode.get("data");
+            if (dataNode != null && dataNode.has("content") && dataNode.get("content").isArray() && dataNode.get("content").size() > 0) {
+                JsonNode content = dataNode.get("content").get(0);
+                ActionTrace actionTrace = new ActionTrace();
+                if (content.has("actionAlias") && content.get("actionAlias") != null) actionTrace.setActionAlias(content.get("actionAlias").asText());
+                if (content.has("actionId") && content.get("actionId") != null) actionTrace.setActionId(content.get("actionId").asLong());
+                if (content.has("actionType") && content.get("actionType") != null) actionTrace.setActionType(content.get("actionType").asText());
+                if (content.has("applicationName") && content.get("applicationName") != null) actionTrace.setApplicationName(content.get("applicationName").asText());
+                if (content.has("bizSystemName") && content.get("bizSystemName") != null) actionTrace.setBizSystemName(content.get("bizSystemName").asText());
+                if (content.has("instanceName") && content.get("instanceName") != null) actionTrace.setInstanceName(content.get("instanceName").asText());
+                if (content.has("apmData") && content.get("apmData") != null) actionTrace.setApmData(content.get("apmData").asText());
+                return actionTrace;
+            } else {
+                throw new RuntimeException("No content found in response");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse response as JSON", e);
+        }
+    }
+
     private List<HttpMessageConverter<?>> getConverts() {
         List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
         // String转换器
