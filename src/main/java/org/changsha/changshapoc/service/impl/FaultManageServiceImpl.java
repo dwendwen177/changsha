@@ -68,7 +68,7 @@ public class FaultManageServiceImpl implements FaultManageService {
                 log.error("Failed to get token, response code: " + jsonNode.get("code").asInt() + ", response message: " + jsonNode.get("msg").asText() + ".");
                 throw new RuntimeException("Failed to get token, response code: " + jsonNode.get("code").asInt());
             }
-            return jsonNode.get("access_token").toString();
+            return jsonNode.get("access_token").toString().replaceAll("\"", "");
         } catch (IOException e) {
             throw new RuntimeException("Failed to parse response as JSON", e);
         }
