@@ -12,4 +12,7 @@ public interface FaultManageService {
 
     public ActionTrace getFaultInfo3(String token);
 
+    public ActionTrace getFaultInfo99(String token);
+
+
 }
