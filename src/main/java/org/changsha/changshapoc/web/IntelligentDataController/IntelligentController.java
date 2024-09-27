@@ -124,6 +124,7 @@ public class IntelligentController {
         securityAnalysisGroupResponse.setMap(map);
         securityAnalysisGroupResponse.setGraphUrl("http://100.115.88.92:18090/high-risk-operation-group/" + numbersOnly);
         return ResponseResult.success(map);
+        //return ResponseResult.success();
     }
 
     @RequestMapping(value = "/securityAnalysis", method = RequestMethod.GET)
@@ -153,6 +154,14 @@ public class IntelligentController {
     @RequestMapping(value = "/faultmanage/detail", method = RequestMethod.GET)
     @ResponseBody
     public ResponseResult queryDetail() {
+        String token = faultManageService.getToken();
+        ActionTrace actionTrace = faultManageService.getFaultInfo(token);
+        return ResponseResult.success(actionTrace);
+    }
+
+    @RequestMapping(value = "/faultmanage/detail2", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult queryDetail2() {
         String token = faultManageService.getToken();
         ActionTrace actionTrace = faultManageService.getFaultInfo(token);
         return ResponseResult.success(actionTrace);

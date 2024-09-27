@@ -2,6 +2,7 @@ package org.changsha.changshapoc.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.changsha.changshapoc.dal.Dao.SqlResDAO;
 import org.changsha.changshapoc.dal.Mapper.Primary.IntelligentDataMapper;
 import org.changsha.changshapoc.dal.Mapper.Secondary.SqlResMapper;
@@ -10,8 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
+@Slf4j
 public class IntelligentDataServiceImpl implements IntelligentDataService {
 
     @Autowired
@@ -21,6 +27,15 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
 
     @Override
     public JSONObject executeSql(String sql) {
+
+        //解析查询字段
+        List<String> fields = extractFields(sql);
+        System.out.println("Extracted Fields:");
+        for (String field : fields) {
+            log.info(field);
+        }
+
+
         List<Map<String, Object>> maps = studentsMapper.executeDynamicSql(sql);
         UUID uuid = UUID.randomUUID();
 
@@ -52,13 +67,20 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
 
 
         for (Map<String, Object> map : maps) {
-            Iterator<Object> iterator = map.values().iterator();
-            if (iterator.hasNext()) {
-                stringList.add(String.valueOf(iterator.next()));
+
+            if(map.get(fields.get(0))==null){
+                stringList.add("-");
+            }else {
+                stringList.add(map.get(fields.get(0)).toString());
             }
-            if (iterator.hasNext()) {
-                numberList.add(String.valueOf(iterator.next()));
+
+            if(map.get(fields.get(1))==null){
+                numberList.add("0");
+            }else {
+                numberList.add(map.get(fields.get(1)).toString());
             }
+
+
 //            for (Object value : map.values()) {
 //                // 检查值的类型并添加到相应的列表中
 //                if (value instanceof Number) {
@@ -93,5 +115,29 @@ public class IntelligentDataServiceImpl implements IntelligentDataService {
         SqlResDAO res = sqlResMapper.select(sqlResDAO).get(0);
         JSONObject jsonObject = JSON.parseObject(res.getRes());
         return jsonObject;
+    }
+
+    public List<String> extractFields(String sql) {
+        List<String> fields = new ArrayList<>();
+        // 匹配 SELECT 语句中的字段，包括函数形式的字段
+        String regex = "(?i)select\\s+(.*?)\\s+from"; // Regex to match fields between SELECT and FROM
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(sql);
+        if (matcher.find()) {
+            String fieldList = matcher.group(1);
+            String[] fieldArray = fieldList.split(",\\s*"); // 分割字段
+            for (String field : fieldArray) {
+                // 提取字段名并处理 AS
+                String[] parts = field.split("\\s+as\\s+", 2); // 分割 AS
+                if (parts.length == 2) {
+                    // 如果有 AS，则取 AS 之后的部分作为字段名
+                    fields.add(parts[1].trim());
+                } else {
+                    // 如果没有 AS，则取整个字段作为字段名
+                    fields.add(field.trim());
+                }
+            }
+        }
+        return fields;
     }
 }
