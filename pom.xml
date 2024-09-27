@@ -60,6 +60,13 @@
         </dependency>
 
         <dependency>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>3.13.4</version> <!-- 请检查最新版本并替换 -->
+        </dependency>
+
+
+        <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <version>${mybatis.version}</version>

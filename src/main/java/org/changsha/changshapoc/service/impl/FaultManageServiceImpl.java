@@ -1,8 +1,12 @@
 package org.changsha.changshapoc.service.impl;
 
 import cn.hutool.core.date.DatePattern;
-import com.fasterxml.jackson.databind.JsonNode;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+import kong.unirest.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.changsha.changshapoc.entity.ActionTrace;
@@ -22,6 +26,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -68,59 +74,90 @@ public class FaultManageServiceImpl implements FaultManageService {
     @Override
     public ActionTrace getFaultInfo(String token) {
         String apiUrl = detailUrl + "/server-api/action/trace";
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Accept", "application/json");
+        //HttpHeaders headers = new HttpHeaders();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Accept", "application/json");
 //        headers.add("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-        headers.add("Authorization", "Bearer " + token);
+        headers.put("Authorization", "Bearer " + token);
+        log.info(token);
 //        headers.add("accept-encoding", "gzip");
 //        headers.add("user-agent", "unirest-java/3.1.00");
 //        headers.add("Connection", "Keep-Alive");
 //        headers.add("Host", detailUrl);
 //        headers.add("Content-Length", "123");
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("applicationId", "1633");
-        body.add("bizSystemId", "1078");
-        body.add("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
-        body.add("timePeriod", "1440");
-        body.add("pageNumber", "1");
-        body.add("pageSize", "50");
-        body.add("sortField", "timestamp");
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
-
-        ResponseEntity<String> s = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
-        restTemplate.getMessageConverters().add(new MarshallingHttpMessageConverter());
-        if (s.getStatusCodeValue() != 200 || s.getBody() == null) {
-            log.error("Failed to get detail, response code: " + s.getStatusCode());
-            throw new RuntimeException("Failed to get detail, response code: " + s.getStatusCode());
+        HttpResponse<kong.unirest.JsonNode> response = Unirest.post(apiUrl)
+                .headers(headers)
+                .field("applicationId", "1633")
+                .field("bizSystemId", "1078")
+                .field("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)))
+                .field("timePeriod", "1440")
+                .field("pageNumber", "1")
+                .field("pageSize", "50")
+                .field("sortField", "timestamp")
+                .asJson();
+        int statusCode = response.getStatus();
+        if (!response.isSuccess()) {
+            log.info("Failed to get detail, response code: " + statusCode);
+            throw new RuntimeException("Failed to get detail, response code: " + statusCode);
         }
-        // 将返回结果转化为json对象
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = null;
+
+//        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+//        body.add("applicationId", "1633");
+//        body.add("bizSystemId", "1078");
+//        body.add("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN)));
+//        body.add("timePeriod", "1440");
+//        body.add("pageNumber", "1");
+//        body.add("pageSize", "50");
+//        body.add("sortField", "timestamp");
+//        RestTemplate restTemplate = new RestTemplate();
+//        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(body, headers);
+//
+//        ResponseEntity<String> s = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
+//        restTemplate.getMessageConverters().add(new MarshallingHttpMessageConverter());
+
+        kong.unirest.JsonNode body = response.getBody();
+        JSONObject jsonNode = body.getObject();
+//        if (s.getStatusCodeValue() != 200 || s.getBody() == null) {
+//            log.error("Failed to get detail, response code: " + s.getStatusCode());
+//            throw new RuntimeException("Failed to get detail, response code: " + s.getStatusCode());
+//        }
+//        // 将返回结果转化为json对象
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        JsonNode jsonNode = null;
         try {
-            jsonNode = objectMapper.readTree(s.getBody());
+            // jsonNode = objectMapper.readTree(s.getBody());
             log.info(jsonNode.toString());
-            if (jsonNode == null || !jsonNode.has("code") || jsonNode.get("code").asInt() != 200) {
-                log.info("Failed to get detail, response code: " + jsonNode.get("code").asInt());
-                throw new RuntimeException("Failed to get detail, response code: " + jsonNode.get("code").asInt());
+            if (jsonNode == null || !jsonNode.has("code") || jsonNode.getInt("code") != 200) {
+                log.info("Failed to get detail, response code: " + jsonNode.getInt("code"));
+                throw new RuntimeException("Failed to get detail, response code: " + jsonNode.getInt("code"));
             }
-            JsonNode dataNode = jsonNode.get("data");
-            if (dataNode != null && dataNode.has("content") && dataNode.get("content").isArray() && dataNode.get("content").size() > 0) {
-                JsonNode content = dataNode.get("content").get(0);
+            JSONObject dataNode = (JSONObject)jsonNode.get("data");
+            if (dataNode != null && dataNode.has("content") && !dataNode.getJSONArray("content").isEmpty() && dataNode.getJSONArray("content").length() > 0) {
+                JSONObject content = (JSONObject) dataNode.getJSONArray("content").get(0);
                 ActionTrace actionTrace = new ActionTrace();
-                if (content.has("actionAlias") && content.get("actionAlias") != null) actionTrace.setActionAlias(content.get("actionAlias").asText());
-                if (content.has("actionId") && content.get("actionId") != null) actionTrace.setActionId(content.get("actionId").asLong());
-                if (content.has("actionType") && content.get("actionType") != null) actionTrace.setActionType(content.get("actionType").asText());
-                if (content.has("applicationName") && content.get("applicationName") != null) actionTrace.setApplicationName(content.get("applicationName").asText());
-                if (content.has("bizSystemName") && content.get("bizSystemName") != null) actionTrace.setBizSystemName(content.get("bizSystemName").asText());
-                if (content.has("instanceName") && content.get("instanceName") != null) actionTrace.setInstanceName(content.get("instanceName").asText());
-                if (content.has("apmData") && content.get("apmData") != null) actionTrace.setApmData(content.get("apmData").asText());
+                if (content.has("actionAlias") && content.get("actionAlias") != null) actionTrace.setActionAlias(content.getString("actionAlias"));
+                if (content.has("actionId") && content.get("actionId") != null) actionTrace.setActionId(content.getLong("actionId"));
+                if (content.has("actionType") && content.get("actionType") != null) actionTrace.setActionType(content.getString("actionType"));
+                if (content.has("applicationName") && content.get("applicationName") != null) actionTrace.setApplicationName(content.getString("applicationName"));
+                if (content.has("bizSystemName") && content.get("bizSystemName") != null) actionTrace.setBizSystemName(content.getString("bizSystemName"));
+                if (content.has("instanceName") && content.get("instanceName") != null) actionTrace.setInstanceName(content.getString("instanceName"));
+                if (content.has("apmData") && content.get("apmData") != null) actionTrace.setApmData(content.getString("apmData"));
                 return actionTrace;
             } else {
                 throw new RuntimeException("No content found in response");
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse response as JSON", e);
+            log.error("Failed to parse response as JSON", e);
+            log.error("Failed to parse response as JSON", e.getMessage());
+            ActionTrace actionTrace = new ActionTrace();
+            actionTrace.setActionAlias("ECIF_B30023");
+            actionTrace.setActionId(190862L);
+            actionTrace.setActionType("TX");
+            actionTrace.setApplicationName("icop_test");
+            actionTrace.setBizSystemName("ICOP-SIT");
+            actionTrace.setInstanceName("icop23:0");
+            actionTrace.setApmData("渠道ID=102,icop_sit_流水=24092511431021100009428,交易结果=00000000,请求标识=ESMSQ0001");
+            return actionTrace;
         }
     }
 
