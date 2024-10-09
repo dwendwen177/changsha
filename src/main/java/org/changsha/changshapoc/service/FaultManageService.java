@@ -8,11 +8,6 @@ public interface FaultManageService {
 
     public ActionTrace getFaultInfo(String token);
 
-    public ActionTrace getFaultInfo2(String token);
-
-    public ActionTrace getFaultInfo3(String token);
-
-    public ActionTrace getFaultInfo99(String token);
 
 
 }

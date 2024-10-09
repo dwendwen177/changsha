@@ -168,46 +168,4 @@ public class IntelligentController {
         //return ResponseResult.success();
     }
 
-    @RequestMapping(value = "/faultmanage/detail2", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseResult queryDetail2() {
-        String token = faultManageService.getToken();
-        log.info("token2:" + token);
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        ActionTrace actionTrace = faultManageService.getFaultInfo2(token);
-        return ResponseResult.success(actionTrace);
-    }
-
-
-    @RequestMapping(value = "/faultmanage/detail3", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseResult queryDetail3() {
-        String token = faultManageService.getToken();
-        log.info("token3:" + token);
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        ActionTrace actionTrace = faultManageService.getFaultInfo3(token);
-        return ResponseResult.success(actionTrace);
-    }
-
-    @RequestMapping(value = "/faultmanage/detail99", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseResult queryDetail99() {
-        String token = faultManageService.getToken();
-        log.info("token99:" + token);
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        ActionTrace actionTrace = faultManageService.getFaultInfo3(token);
-        return ResponseResult.success(actionTrace);
-    }
 }
