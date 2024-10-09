@@ -76,7 +76,7 @@ public class TroubleEmergencyCopeServiceImpl implements TroubleEmergencyCopeServ
                 .field("bizSystemId", String.valueOf(request.getBizSystemId()))
                 .field("applicationId", String.valueOf(request.getApplicationId()))
                 .field("actionId", String.valueOf(request.getActionId()))
-                .field("timePeriod", String.valueOf(request.getTimePeriod()))
+                .field("timePeriod", "5")
                 .field("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .field("pageNumber", request.getPageNumber() == null ? "1" : String.valueOf(request.getPageNumber()))
                 .field("pageSize", request.getPageSize() == null ? "50" : String.valueOf(request.getPageSize()))

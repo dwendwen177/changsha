@@ -34,8 +34,8 @@ public class TraceRequest {
     private Long actionId;
 
     // 必填  选择的时长，单位为分钟
-    @NotNull(message = "timePeriod cannot empty")
-    private Long timePeriod;
+//    @NotNull(message = "timePeriod cannot empty")
+//    private Long timePeriod;
 
     // 结束时间 yyyy-MM-dd HH:mm
 //    private String endTime;
