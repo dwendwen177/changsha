@@ -40,13 +40,13 @@ public class TraceRequest {
     // 结束时间 yyyy-MM-dd HH:mm
 //    private String endTime;
 
+//    // 必填
+//    private Long pageNumber;
+//    // 必填
+//    private Long pageSize;
     // 必填
-    private Long pageNumber;
-    // 必填
-    private Long pageSize;
-    // 必填
-    @NotBlank(message = "sortField cannot empty")
-    private String sortField;
+//    @NotBlank(message = "sortField cannot empty")
+//    private String sortField;
     // 必填 ASC DESC
 //    @NotBlank(message = "sortDirection cannot empty")
 //    @Pattern(regexp = "ASC|DESC", message = "actionType must be ASC or DESC")

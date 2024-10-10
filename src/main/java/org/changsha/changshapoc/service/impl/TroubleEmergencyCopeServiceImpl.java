@@ -80,9 +80,9 @@ public class TroubleEmergencyCopeServiceImpl implements TroubleEmergencyCopeServ
                 .field("actionId", String.valueOf(request.getActionId()))
                 .field("timePeriod", "5")
                 .field("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-                .field("pageNumber", request.getPageNumber() == null ? "1" : String.valueOf(request.getPageNumber()))
-                .field("pageSize", request.getPageSize() == null ? "50" : String.valueOf(request.getPageSize()))
-                .field("sortField", String.valueOf(request.getSortField()))
+                .field("pageNumber", "1")
+                .field("pageSize", "50")
+                .field("sortField", "timestamp")
                 .field("sortDirection", "DESC")
                 .asJson();
         log.info("trace response: {}", response.getBody().toString());

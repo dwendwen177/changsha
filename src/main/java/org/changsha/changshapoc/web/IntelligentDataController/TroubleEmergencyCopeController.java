@@ -1,5 +1,7 @@
 package org.changsha.changshapoc.web.IntelligentDataController;
 
+import org.changsha.changshapoc.entity.DetailRequest;
+import org.changsha.changshapoc.entity.DetailResponse;
 import org.changsha.changshapoc.entity.TraceRequest;
 import org.changsha.changshapoc.entity.TraceResponse;
 import org.changsha.changshapoc.service.TroubleEmergencyCopeService;
@@ -22,6 +24,12 @@ public class TroubleEmergencyCopeController {
     public ResponseResult<List<TraceResponse>> trace(@RequestBody @Valid TraceRequest request) {
         String token = troubleEmergencyCopeService.getToken();
         return troubleEmergencyCopeService.trace(request, token);
+    }
+
+    @PostMapping("trace")
+    public ResponseResult<DetailResponse> trace(@RequestBody @Valid DetailRequest request) {
+        String token = troubleEmergencyCopeService.getToken();
+        return troubleEmergencyCopeService.detail(request, token);
     }
 
 
