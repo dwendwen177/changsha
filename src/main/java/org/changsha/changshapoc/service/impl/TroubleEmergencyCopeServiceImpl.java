@@ -8,6 +8,8 @@ import kong.unirest.json.JSONArray;
 import kong.unirest.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.changsha.changshapoc.entity.DetailRequest;
+import org.changsha.changshapoc.entity.DetailResponse;
 import org.changsha.changshapoc.entity.TraceRequest;
 import org.changsha.changshapoc.entity.TraceResponse;
 import org.changsha.changshapoc.service.TroubleEmergencyCopeService;
@@ -83,9 +85,10 @@ public class TroubleEmergencyCopeServiceImpl implements TroubleEmergencyCopeServ
                 .field("sortField", String.valueOf(request.getSortField()))
                 .field("sortDirection", "DESC")
                 .asJson();
+        log.info("trace response: {}", response.getBody().toString());
         int statusCode = response.getStatus();
         if (!response.isSuccess()) {
-            log.info("Failed to get detail, response code: " + statusCode);
+            log.info("Failed to get trace, response code: {}", statusCode);
             throw new RuntimeException("Failed to get detail, response code: " + statusCode);
         }
 
@@ -93,7 +96,7 @@ public class TroubleEmergencyCopeServiceImpl implements TroubleEmergencyCopeServ
         JSONObject jsonNode = body.getObject();
 
         if (jsonNode == null || !jsonNode.has("code") || jsonNode.getInt("code") != 200) {
-            log.info("Failed to get detail, response code: " + jsonNode.getInt("code"));
+            log.info("Failed to get trace, response code: {}", jsonNode.getInt("code"));
             throw new RuntimeException("Failed to get detail, response code: " + jsonNode.getInt("code"));
         }
         JSONObject dataNode = (JSONObject) jsonNode.get("data");
@@ -102,6 +105,40 @@ public class TroubleEmergencyCopeServiceImpl implements TroubleEmergencyCopeServ
         List<TraceResponse> traceResponses = com.alibaba.fastjson.JSONArray.parseArray(string, TraceResponse.class);
 
         return ResponseResult.success(traceResponses);
+    }
+
+    @Override
+    public ResponseResult<DetailResponse> detail(DetailRequest request, String token) {
+        String apiUrl = detailUrl + "/server-api/action/trace/detail";
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Accept", "application/json");
+        headers.put("Authorization", "Bearer " + token);
+        HttpResponse<kong.unirest.JsonNode> response = Unirest.post(apiUrl)
+                .headers(headers)
+                .field("bizSystemId", String.valueOf(request.getBizSystemId()))
+                .field("traceId", request.getTraceId())
+                .field("timePeriod", "5")
+                .field("endTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .asJson();
+        log.info("detail response: {}", response.getBody().toString());
+        int statusCode = response.getStatus();
+        if (!response.isSuccess()) {
+            log.info("Failed to get detail, response code: {}", statusCode);
+            throw new RuntimeException("Failed to get detail, response code: " + statusCode);
+        }
+
+        kong.unirest.JsonNode body = response.getBody();
+        JSONObject jsonNode = body.getObject();
+
+        if (jsonNode == null || !jsonNode.has("status") || jsonNode.getInt("status") != 200) {
+            log.info("Failed to get detail, response code: {}", jsonNode.getInt("status"));
+            throw new RuntimeException("Failed to get detail, response code: " + jsonNode.getInt("status"));
+        }
+        JSONObject dataNode = (JSONObject) jsonNode.get("data");
+        String string = dataNode.toString();
+        DetailResponse detailResponses = com.alibaba.fastjson.JSONObject.parseObject(string, DetailResponse.class);
+
+        return ResponseResult.success(detailResponses);
     }
 
     private String callApi(String apiUrl) {
